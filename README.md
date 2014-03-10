@@ -1,3 +1,16 @@
+Simple THREE.js / Backbone / Coffeescript example
+---
+
+Just a little test of how to start building an app in coffeescript that wraps three.js inside a Backbone application. 
+
+
+
+
+
+
+
+
+
 This web project has the following setup:
 
 * www/ - the web assets for the project
