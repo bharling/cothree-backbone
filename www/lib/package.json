@@ -1,0 +1,9 @@
+{
+  "volo": {
+    "dependencies": {
+      "underscore": "github:jashkenas/underscore/1.6.0",
+      "backbone": "github:jashkenas/backbone/1.1.2",
+      "three.min": "github:mrdoob/three.js/master"
+    }
+  }
+}
