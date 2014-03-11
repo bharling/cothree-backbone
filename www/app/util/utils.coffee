@@ -3,13 +3,17 @@ define [], () ->
 	root = exports ? this
 
 	# window resize from http://jeromeetienne.github.io/threex/
-	WindowResize = (renderer, camera) =>
+	WindowResize = (@renderer) =>
+		@camera = null
 		callback = =>
 			renderer.setSize window.innerWidth, window.innerHeight
-			camera.aspect = window.innerWidth / window.innerHeight
-			camera.updateProjectionMatrix
+			if @camera?
+				@camera.aspect = window.innerWidth / window.innerHeight
+				@camera.updateProjectionMatrix
 		window.addEventListener 'resize', callback, false
 		ret = 
+			setCamera: (camera) ->
+				@camera = camera
 			trigger: ->
 				callback()
 			destroy: ->

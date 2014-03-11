@@ -22,11 +22,13 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!
 		pushScene: (scene) =>
 			@scenes.push scene
 			@currentScene = scene
+			@windowResize.setCamera scene.camera
 
 		popScene: => 
 			if @scenes.length > 1
 				@scenes.pop()
 				@currentScene = @scenes[-1..][0]
+				@windowResize.setCamera @currentScene.camera
 
 		initialize: ->
 			@scenes = []
