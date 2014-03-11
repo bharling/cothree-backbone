@@ -1,21 +1,94 @@
-define ['jquery', 'underscore', 'backbone', 'three', 'cs!../components/rendercomponents', '../util/threex.domevents'], ($, _, Backbone, THREE, rc, THREEx) ->
+define [
+	'jquery', 
+	'underscore', 
+	'backbone', 
+	'three',
+	'cs!../components/rendercomponents', 
+	'../util/threex.domevents'
+	], ($, _, Backbone, THREE, rc, THREEx) ->
 	root = exports ? this
 
+	class LoadingScreen
+		constructor: ->
+			@scene = new THREE.Scene
+			@camera = new THREE.PerspectiveCamera 35, window.innerWidth / window.innerHeight, 1, 10000
+			@camera.position.set 0,0,5
+			@scene.add @camera
+			@createDom()
+			window.appEventDispatcher.on 'app:resourceLoaded', @updateProgress
+				
+		createDom: ->
+			@domElem = $ document.createElement "div"
+				.css
+					position : "absolute"
+					top:"0px"
+					left:"0px"
+					background: "#ffaaaa"
+					width: "100%"
+					height: "100%"
+					"text-align" : "center"
+				.appendTo 'body'
+
+			@loadingText = $ document.createElement "h2"
+				.css
+					color : "#fff"
+				.text "Loafing : 0%"
+				.appendTo @domElem
+
+
+		updateProgress: (nLoaded, nTotal) =>
+			console.log nLoaded
+			@loadingText.text "#{(nLoaded / nTotal) * 100}% done"
+
+		update: (delta, now) =>
+
+		destroy: =>
+			@domElem.remove()
+			window.appEventDispatcher.off 'app:resourceLoaded'
+			window.appEventDispatcher.trigger 'app:popscene', @
+
+		add: =>
+			window.appEventDispatcher.trigger 'app:pushscene', @
 
 
 
 	class Scene
 		constructor: ->
+			@jsonLoader = new THREE.JSONLoader
+			@textureLoader = new THREE.TextureLoader
 			@components = []
+			@toLoad = 0
+			@numLoaded = 0
 			@scene = new THREE.Scene
 			@camera = null
+			#@showLoadingScreen()
 			@initialize()
+
+		showLoadingScreen: =>
+			@loadingScreen = new LoadingScreen
+			@loadingScreen.add()
+
+		allResourcesLoaded: =>
+
+
+		## Load a JSON model from a filepath
+		loadModel: (filePath, usserCallback) => 
+			@toLoad++
+			callBack = (geom, materials) =>
+				new_mesh = new THREE.Mesh geom, new THREE.MeshFaceMaterial materials
+				@numLoaded++
+				usserCallback(new_mesh)
+				window.appEventDispatcher.trigger "app:resourceLoaded", @numLoaded, @toLoad
+				if @numLoaded == @toLoad
+					@allResourcesLoaded()
+					@loadingScreen.destroy()
+			@jsonLoader.load filePath, callBack
 
 		initialize: =>
 
-
 		add: =>
 			window.appEventDispatcher.trigger 'app:pushscene', @
+			@showLoadingScreen()
 
 		update: (delta, now) =>
 			@components.forEach (component) ->
@@ -33,20 +106,17 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../components/rendercom
 
 	class DemoScene extends Scene
 
-		addModelToScene: (geometry, materials) =>
-			material = new THREE.MeshFaceMaterial materials
-			logo = new THREE.Mesh(geometry, material)
-			logo.scale.set 0.8, 0.8, 0.8
-			#logo.rotation.x = Math.PI / 2
-			logo.position.x -= 1.9
-			#logo.position.y += 0.5
-			@scene.add logo
+		allResourcesLoaded: =>
+			@scene.add @someText
 
+		textLoaded: (mesh) =>
+			@scene.add mesh
+			mesh.position.x -= 1.9
+			mesh.scale.set .8, .8, .8
 
+		manLoaded: (mesh) =>
+			@scene.add mesh
 
-		loadModel: =>
-			jsonLoader = new THREE.JSONLoader()
-			jsonLoader.load "app/resources/logo.mesh.js", @addModelToScene
 
 		initialize: =>
 			@camera = new THREE.PerspectiveCamera 35, window.innerWidth / window.innerHeight, 1, 10000
@@ -73,12 +143,9 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../components/rendercom
 			domEvents.addEventListener @mesh, 'click', (event) =>
 				@mesh.material.wireframe = not @mesh.material.wireframe
 
-			@loadModel()
-
-
-
-
-
+			@loadModel "app/resources/logo.mesh.js", @textLoaded
+			@loadModel "app/resources/logo.mesh.js", @textLoaded
+			#@loadModel "http://mrdoob.github.io/three.js/examples/obj/male02/Male02_dds.js", @manLoaded
 
 	root.Scene = Scene
 	root.DemoScene = DemoScene

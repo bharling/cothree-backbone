@@ -26,7 +26,7 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!
 		popScene: => 
 			if @scenes.length > 1
 				@scenes.pop()
-				@currentScene = scenes[-1..]
+				@currentScene = @scenes[-1..][0]
 
 		initialize: ->
 			@scenes = []
@@ -54,7 +54,7 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!
 			delta = Math.min 200, now - @lastTime
 			@lastTime = now
 
-			if @currentScene
+			if @currentScene?
 				@currentScene.update(delta, now)
 				@renderer.render @currentScene.scene, @currentScene.camera
 
