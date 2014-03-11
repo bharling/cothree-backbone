@@ -32,9 +32,10 @@ requirejs.config({
 // Start loading the main app file. Put all of
 // your application logic in there.
 require(
-		['cs!app/views/ThreeDeeView'], 
-		function main(App) {
+		['cs!app/views/ThreeDeeView', 'cs!app/scenes/scenes'], 
+		function main(App, Scenes) {
 			var v = new App.MainThreeDeeView();
-			v.debugGeom();
+			var s = new Scenes.DemoScene();
+			s.add();
 		}
 );

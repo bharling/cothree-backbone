@@ -1,69 +1,62 @@
-define ['jquery', 'underscore', 'backbone', 'three'], 
-( $, _, Backbone, THREE) ->
+define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!../util/utils', 'cs!../components/rendercomponents'], 
+( $, _, Backbone, THREE, models, utils, rc) ->
 	root = exports ? this
 
-	class ThreeDeeModel extends Backbone.Model
+	class @EventDispatcher
+		constructor: ->
+			_.extend @, Backbone.Events
 
-
-		initialize: ->
-			@init3D()
-
-		init3D: =>
-			geom = new THREE.TorusGeometry 1, 0.45
-			material = new THREE.MeshNormalMaterial
-			@mesh = new THREE.Mesh geom, material
-
-	class ThreeDeeModelCollection extends Backbone.Collection
-		model = ThreeDeeModel
-
-
-	# window resize from http://jeromeetienne.github.io/threex/
-	WindowResize = (renderer, camera) ->
-		callback = ->
-			renderer.setSize window.innerWidth, window.innerHeight
-			camera.aspect = window.innerWidth / window.innerHeight
-			camera.updateProjectionMatrix
-		window.addEventListener 'resize', callback, false
-		ret = 
-			trigger: ->
-				callback()
-			destroy: ->
-				window.removeEventListener 'resize', callback
-		
+	@appEventDispatcher = new EventDispatcher()
 
 
 	class MainThreeDeeView extends Backbone.View
 		el : $ 'body'
 
 		debugGeom: =>
-			item = new ThreeDeeModel()
+			item = new models.ThreeDeeModel
 			@collection.add item
 
 		addItem: (item) =>
 			@scene.add item.mesh
 
-		initialize: ->
-			@collection = new ThreeDeeModelCollection
-			@collection.bind 'add', @addItem
+		pushScene: (scene) =>
+			@scenes.push scene
+			@currentScene = scene
 
+		popScene: => 
+			if @scenes.length > 1
+				@scenes.pop()
+				@currentScene = scenes[-1..]
+
+		initialize: ->
+			@scenes = []
+			@currentScene = null
+			@collection = new models.ThreeDeeModelCollection
+			@collection.bind 'add', @addItem
+			@lastTime = 0
 			@renderer = new THREE.WebGLRenderer antialias: true, preserveDrawingBuffer: true
 			@renderer.setSize window.innerWidth, window.innerHeight
+			window.appEventDispatcher.on 'app:pushscene', (scene) =>
+				@pushScene(scene)
 
-			@scene = new THREE.Scene()
-			@camera = new THREE.PerspectiveCamera 35, window.innerWidth / window.innerHeight, 1, 10000
+			window.appEventDispatcher.on 'app:popscene', () =>
+				@popScene()
 
-			@camera.position.set 0,0,5
-			@scene.add @camera
-
-			@windowResize = new WindowResize @renderer, @camera
-
-			#@debugGeom()
-
+			@windowResize = new utils.WindowResize @renderer, @camera
 			@render()
 
-		renderScene: =>
+		renderScene:(now) =>
 			requestAnimationFrame @renderScene
-			@renderer.render @scene, @camera
+
+			now ?= 1000/60
+
+			@lastTime = @lastTime ? now - 1000/60
+			delta = Math.min 200, now - @lastTime
+			@lastTime = now
+
+			if @currentScene
+				@currentScene.update(delta, now)
+				@renderer.render @currentScene.scene, @currentScene.camera
 
 		render: ->
 			$(@el).empty().append @renderer.domElement
