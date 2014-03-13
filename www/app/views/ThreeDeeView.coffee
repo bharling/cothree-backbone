@@ -1,13 +1,6 @@
-define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!../util/utils', 'cs!../components/rendercomponents'], 
-( $, _, Backbone, THREE, models, utils, rc) ->
+define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!../util/utils', 'cs!../components/rendercomponents', 'cs!../scenes/loading.coffee'], 
+( $, _, Backbone, THREE, models, utils, rc, loading) ->
 	root = exports ? this
-
-	class @EventDispatcher
-		constructor: ->
-			_.extend @, Backbone.Events
-
-	@appEventDispatcher = new EventDispatcher()
-
 
 	class MainThreeDeeView extends Backbone.View
 		el : $ 'body'
@@ -21,7 +14,8 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!
 
 		pushScene: (scene) =>
 			@scenes.push scene
-			@currentScene = scene
+			@scenes.push @loadingScreen
+			@currentScene = @loadingScreen
 			@windowResize.setCamera scene.camera
 
 		popScene: => 
@@ -33,15 +27,14 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!
 		initialize: ->
 			@scenes = []
 			@currentScene = null
-			@collection = new models.ThreeDeeModelCollection
-			@collection.bind 'add', @addItem
+			@loadingScreen = new loading.LoadingScreen
 			@lastTime = 0
 			@renderer = new THREE.WebGLRenderer antialias: true, preserveDrawingBuffer: true
 			@renderer.setSize window.innerWidth, window.innerHeight
-			window.appEventDispatcher.on 'app:pushscene', (scene) =>
+			Backbone.on 'app:pushscene', (scene) =>
 				@pushScene(scene)
 
-			window.appEventDispatcher.on 'app:popscene', () =>
+			Backbone.on 'app:popscene', () =>
 				@popScene()
 
 			@windowResize = new utils.WindowResize @renderer, @camera
@@ -61,7 +54,7 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!
 				@renderer.render @currentScene.scene, @currentScene.camera
 
 		render: ->
-			$(@el).empty().append @renderer.domElement
+			$(@el).append @renderer.domElement
 			@renderScene()
 
 	root.MainThreeDeeView = MainThreeDeeView

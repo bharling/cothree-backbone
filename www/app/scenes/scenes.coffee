@@ -8,50 +8,6 @@ define [
 	], ($, _, Backbone, THREE, rc, THREEx) ->
 	root = exports ? this
 
-	class LoadingScreen
-		constructor: ->
-			@scene = new THREE.Scene
-			@camera = new THREE.PerspectiveCamera 35, window.innerWidth / window.innerHeight, 1, 10000
-			@camera.position.set 0,0,5
-			@scene.add @camera
-			@createDom()
-			window.appEventDispatcher.on 'app:resourceLoaded', @updateProgress
-				
-		createDom: ->
-			@domElem = $ document.createElement "div"
-				.css
-					position : "absolute"
-					top:"0px"
-					left:"0px"
-					background: "#ffaaaa"
-					width: "100%"
-					height: "100%"
-					"text-align" : "center"
-				.appendTo 'body'
-
-			@loadingText = $ document.createElement "h2"
-				.css
-					color : "#fff"
-				.text "Loafing : 0%"
-				.appendTo @domElem
-
-
-		updateProgress: (nLoaded, nTotal) =>
-			console.log nLoaded
-			@loadingText.text "#{(nLoaded / nTotal) * 100}% done"
-
-		update: (delta, now) =>
-
-		destroy: =>
-			@domElem.remove()
-			window.appEventDispatcher.off 'app:resourceLoaded'
-			window.appEventDispatcher.trigger 'app:popscene', @
-
-		add: =>
-			window.appEventDispatcher.trigger 'app:pushscene', @
-
-
-
 	class Scene
 		constructor: ->
 			@jsonLoader = new THREE.JSONLoader
@@ -61,33 +17,41 @@ define [
 			@numLoaded = 0
 			@scene = new THREE.Scene
 			@camera = null
-			#@showLoadingScreen()
+			@showLoadingScreen()
 			@initialize()
 
 		showLoadingScreen: =>
-			@loadingScreen = new LoadingScreen
-			@loadingScreen.add()
+			Backbone.trigger "app:showLoadingScreen", @
 
 		allResourcesLoaded: =>
 
 
 		## Load a JSON model from a filepath
-		loadModel: (filePath, usserCallback) => 
+		loadModel: (filePath, userCallback) => 
 			@toLoad++
 			callBack = (geom, materials) =>
 				new_mesh = new THREE.Mesh geom, new THREE.MeshFaceMaterial materials
 				@numLoaded++
-				usserCallback(new_mesh)
-				window.appEventDispatcher.trigger "app:resourceLoaded", @numLoaded, @toLoad
+				userCallback(new_mesh)
+				Backbone.trigger "app:resourceLoaded", @numLoaded, @toLoad
 				if @numLoaded == @toLoad
 					@allResourcesLoaded()
-					@loadingScreen.destroy()
 			@jsonLoader.load filePath, callBack
+
+		loadTexture: (filePath, userCallback) =>
+			callBack = (texture) =>
+				@numLoaded++
+				userCallback(texture)
+				Backbone.trigger "app:resourceLoaded", @numLoaded, @toLoad
+				if @numLoaded == @toLoad
+					@allResourcesLoaded()
+			@textureLoader.load filePath, callBack
+
 
 		initialize: =>
 
 		add: =>
-			window.appEventDispatcher.trigger 'app:pushscene', @
+			Backbone.trigger 'app:pushscene', @
 			@showLoadingScreen()
 
 		update: (delta, now) =>
@@ -95,7 +59,7 @@ define [
 				component.update delta, now
 
 		destroy: =>
-			@.trigger 'app:popscene', @
+			Backbone.trigger 'app:popscene', @
 
 	class DemoAnimatedLightComponent
 		constructor: (@light) ->
