@@ -43,7 +43,7 @@ define [
 		update: (delta, now) =>
 
 		destroy: =>
-			TweenLite.to @circle.scale, 5,
+			TweenLite.to @circle.scale, 0.5,
 				x : 0.0
 				y : 0.0
 				z : 0.0

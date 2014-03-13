@@ -88,14 +88,15 @@ define [
 			@scene.add @camera
 			@components.push new rc.DemoCamera @camera, new THREE.Vector3 0, 0, 0
 
-			geom = new THREE.TorusGeometry 1, 0.45, 24, 16
+			geom = new THREE.TorusGeometry 1, 0.45, 36, 64
 			geom.computeFaceNormals()
 			geom.computeVertexNormals(true)
 			material = new THREE.MeshNormalMaterial
 				shading:THREE.SmoothShading
+				opacity : 0.5
 			@mesh = new THREE.Mesh geom, material
 
-			#@scene.add @mesh
+			@scene.add @mesh
 
 			light = new THREE.PointLight 0xffffffff
 			light.position.set -10, 20, 20
