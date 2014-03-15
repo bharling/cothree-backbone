@@ -50,11 +50,16 @@ def makeFont( font, color="#ffffff", font_size=36, image_size=512 ):
         tw = (chwidth + 0.0) / ix
         th = (chheight + 0.0) / iy
 
+        verts = ",".join([str(s) for s in [0.0,0.0,0.0,
+                                            chwidth, 0.0, 0.0,
+                                            chwidth, chheight, 0.0,
+                                            0.0, chheight, 0.0]])
+
         uvs = ",".join([str(s) for s in [x + tw, y, x, y, x, y-th, x + tw, y-th]])
-        verts = ",".join([str(s) for s in [chwidth, 0, 0,
-                                           0, 0, 0,
-                                           0, chheight, 0,
-                                           chwidth, chheight, 0]])
+        #verts = ",".join([str(s) for s in [chwidth, 0, 0,
+        #                                   0, 0, 0,
+        #                                   0, chheight, 0,
+        #                                   chwidth, chheight, 0]])
         chars.append( char_template % ( escape_json(ch), chwidth, chheight, uvs, verts ) )
         cx += (chwidth*1.1)
     texture_filename = font.replace(".ttf", ".png").split(os.sep)[-1]

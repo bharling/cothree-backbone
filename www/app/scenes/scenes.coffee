@@ -4,8 +4,9 @@ define [
 	'backbone', 
 	'three',
 	'cs!../components/rendercomponents', 
-	'../util/threex.domevents'
-	], ($, _, Backbone, THREE, rc, THREEx) ->
+	'../util/threex.domevents',
+	'cs!../util/texturefont'
+	], ($, _, Backbone, THREE, rc, THREEx, texturefont) ->
 	root = exports ? this
 
 	class Scene
@@ -81,6 +82,15 @@ define [
 		manLoaded: (mesh) =>
 			@scene.add mesh
 
+		fontLoaded: () =>
+			textMesh = @font.renderText("Hello World")
+			
+			textMesh.position.x -= 3
+			textMesh.scale.set 0.03, 0.03, 0.03
+
+			@scene.add textMesh
+
+
 
 		initialize: =>
 			@camera = new THREE.PerspectiveCamera 35, window.innerWidth / window.innerHeight, 1, 10000
@@ -96,7 +106,7 @@ define [
 				opacity : 0.5
 			@mesh = new THREE.Mesh geom, material
 
-			@scene.add @mesh
+			#@scene.add @mesh
 
 			light = new THREE.PointLight 0xffffffff
 			light.position.set -10, 20, 20
@@ -110,6 +120,12 @@ define [
 
 			@loadModel "app/resources/logo.mesh.js", @textLoaded
 			@loadModel "app/resources/logo.mesh.js", @textLoaded
+
+			@font = new texturefont.TextureFont
+
+
+
+			@font.loadFont 'app/resources/OpenSans-Bold.json', @fontLoaded
 			#@loadModel "http://mrdoob.github.io/three.js/examples/obj/male02/Male02_dds.js", @manLoaded
 
 	root.Scene = Scene
