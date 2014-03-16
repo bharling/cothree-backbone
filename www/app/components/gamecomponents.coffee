@@ -7,11 +7,11 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 		constructor: ->
 			@components = []
 			@position = new THREE.Vector3()
-			@bounds = new THREE.Box3
+			@bounds = new THREE.Box3()
 
-		send : (message) =>
+		send : (messageType, data) =>
 			@components.forEach ( component ) ->
-				component.receive ( message )
+				component.receive messageType, data
 
 		update: (delta, totalTime) =>
 			@components.forEach (component) ->
@@ -26,16 +26,18 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 		constructor: ->
 			super()
 			@components.push new PlayerInputComponent(@)
+			#@components.push new SocketComponent(@)
 
 
 
 	###
 	Pluggable Components
 	###
-
-	class ComponentMessage
-		constructor: ( @messageType, @data ) ->
-
+	COMPONENT_MESSAGE_TYPES = {
+		PLAYER_INPUT : 0
+		SOCKET_MESSAGE : 1
+	}
+	
 
 	class GameComponent
 		constructor : (data) ->
@@ -44,6 +46,21 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 		update : ( delta, totalTime, gameObject ) =>
 
 		destroy : () =>
+
+		receive : (messageType, messageData) =>
+
+
+
+
+	
+	MOVEMENT_DIRECTIONS = {
+		FORWARD : new THREE.Vector3(0,0,1.0)
+		BACKWARD : new THREE.Vector3(0,0,-1.0)
+		LEFT : new THREE.Vector3( -1.0,0,0 )
+		RIGHT : new THREE.Vector3( 1.0,0,0 )
+	}
+	
+
 
 	class InputComponent extends GameComponent
 		constructor: (@target) ->
@@ -70,6 +87,7 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 			@keyspressed = @keyspressed.filter (keycode) -> keycode isnt event.keyCode
 
 		update : ( delta, totalTime, gameObject ) =>
+			#gameObject.send( COMPONENT_MESSAGE_TYPES.PLAYER_INPUT, @keyspressed )
 			#console.log @keyspressed
 
 		destroy : =>
@@ -79,14 +97,12 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 	class SocketComponent extends GameComponent
 
 
-
 	{
-		GameObject : GameObject,
-		GameComponent : GameComponent,
-		ComponentMessage : ComponentMessage,
-		InputComponent : InputComponent,
-		PlayerInputComponent : PlayerInputComponent,
-		Player : Player,
+		GameObject : GameObject
+		GameComponent : GameComponent
+		InputComponent : InputComponent
+		PlayerInputComponent : PlayerInputComponent
+		Player : Player
 		SocketComponent : SocketComponent
 	}
 
