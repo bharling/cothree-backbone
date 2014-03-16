@@ -5,9 +5,12 @@ define [
 	'three',
 	'cs!../components/rendercomponents', 
 	'../util/threex.domevents',
-	'cs!../util/texturefont'
-	], ($, _, Backbone, THREE, rc, THREEx, texturefont) ->
+	'cs!../util/texturefont',
+	'cs!../components/gamecomponents'
+	], ($, _, Backbone, THREE, rc, THREEx, texturefont, gc) ->
 	root = exports ? this
+
+	console.log gc
 
 	class Scene
 		constructor: ->
@@ -58,6 +61,10 @@ define [
 		update: (delta, now) =>
 			@components.forEach (component) ->
 				component.update delta, now
+
+		cleanup: =>
+			@components.forEach (component) ->
+				component.destroy()
 
 		destroy: =>
 			Backbone.trigger 'app:popscene', @
@@ -123,10 +130,11 @@ define [
 
 			@font = new texturefont.TextureFont
 
-
-
 			@font.loadFont 'app/resources/arial.json', @fontLoaded
 			#@loadModel "http://mrdoob.github.io/three.js/examples/obj/male02/Male02_dds.js", @manLoaded
+
+			@player = new gc.Player
+			@components.push @player
 
 	root.Scene = Scene
 	root.DemoScene = DemoScene

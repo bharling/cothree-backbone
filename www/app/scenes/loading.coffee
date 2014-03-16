@@ -54,6 +54,9 @@ define [
 			Backbone.off 'app:resourceLoaded'
 			Backbone.trigger 'app:popscene', @
 
+		cleanup : =>
+			
+
 		add: =>
 			window.appEventDispatcher.trigger 'app:pushscene', @
 

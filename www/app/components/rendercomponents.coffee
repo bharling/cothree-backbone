@@ -62,10 +62,16 @@ define [], () ->
 	class DemoCamera extends Component
 		constructor: (@camera, @target) ->
 			@mouse = x:0, y:0
-			document.addEventListener 'mousemove', (event) =>
-				@mouse.x = (event.clientX / window.innerWidth) - 0.5
-				@mouse.y = (event.clientY / window.innerHeight) - 0.5
-				true
+			document.addEventListener 'mousemove', @onMouseMove
+				
+
+		onMouseMove: (event) =>
+			@mouse.x = (event.clientX / window.innerWidth) - 0.5
+			@mouse.y = (event.clientY / window.innerHeight) - 0.5
+			true
+
+		destroy: =>
+			document.removeEventListener 'mousemove', @onMouseMove
 
 
 		update: (delta, now) =>

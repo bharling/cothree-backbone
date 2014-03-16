@@ -20,7 +20,8 @@ define ['jquery', 'underscore', 'backbone', 'three', 'cs!../models/models', 'cs!
 
 		popScene: => 
 			if @scenes.length > 1
-				@scenes.pop()
+				old_scene = @scenes.pop()
+				old_scene.cleanup()
 				@currentScene = @scenes[-1..][0]
 				@windowResize.setCamera @currentScene.camera
 
