@@ -83,10 +83,10 @@ define [
 			@scene.add mesh
 
 		fontLoaded: () =>
-			textMesh = @font.renderText("Hello World")
+			textMesh = @font.renderText("year Of the Horse")
 			
 			textMesh.position.x -= 3
-			textMesh.scale.set 0.03, 0.03, 0.03
+			textMesh.scale.set 0.3, 0.3, 0.3
 
 			@scene.add textMesh
 
@@ -125,7 +125,7 @@ define [
 
 
 
-			@font.loadFont 'app/resources/OpenSans-Bold.json', @fontLoaded
+			@font.loadFont 'app/resources/arial.json', @fontLoaded
 			#@loadModel "http://mrdoob.github.io/three.js/examples/obj/male02/Male02_dds.js", @manLoaded
 
 	root.Scene = Scene
