@@ -19,5 +19,11 @@ define [], () ->
 			destroy: ->
 				window.removeEventListener 'resize', callback
 
-	root.WindowResize = WindowResize
-	root
+	class Singleton
+		@getInstance: ->
+			@_instance ?= new @(arguments...)
+
+	{
+		WindowResize :WindowResize
+		Singleton : Singleton
+	}
