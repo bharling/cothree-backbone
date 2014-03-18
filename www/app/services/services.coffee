@@ -34,14 +34,14 @@ define ['jquery', 'underscore', 'bootstrap', 'three', 'cs!../util/utils'], ($,_,
 		@_audioService = null
 		
 		@initialize: ->
-			@_audioService = new NullAudioService 
+			ServiceLocator._audioService = new NullAudioService 
 
 		@getAudio : ->
-			return @_audioService
+			return ServiceLocator._audioService
 
 		@provideAudio : (service) ->
 			if service?
-				@_audioService = service
+				ServiceLocator._audioService = service
 
 	{
 		NullAudioService : NullAudioService
