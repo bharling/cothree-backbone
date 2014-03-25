@@ -49,6 +49,7 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 	}
 
 	class GameComponent
+		constructor : (data) ->
 
 		update : ( delta, totalTime, gameObject ) =>
 
