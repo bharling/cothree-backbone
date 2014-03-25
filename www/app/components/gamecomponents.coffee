@@ -15,6 +15,7 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 
 		update: (delta, totalTime) =>
 			@components.forEach (component) ->
+				#console.log component
 				component.update(delta, totalTime, @)
 
 		destroy: =>
@@ -22,11 +23,20 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 				component.destroy()
 
 
-	class Player extends GameObject
+	class Renderable extends GameObject
+
+
+	class Moveable extends Renderable
 		constructor: ->
-			super()
-			@components.push new PlayerInputComponent(@)
-			#@components.push new SocketComponent(@)
+			super
+			@velocity = new THREE.Vector3()
+
+
+	class Player extends Moveable
+		constructor: ->
+			super
+			@components.push new PlayerInputComponent()
+			@components.push new SocketComponent()
 
 
 
@@ -37,20 +47,14 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 		PLAYER_INPUT : 0
 		SOCKET_MESSAGE : 1
 	}
-	
 
 	class GameComponent
-		constructor : (data) ->
-			_.extend @, data
 
 		update : ( delta, totalTime, gameObject ) =>
 
 		destroy : () =>
 
 		receive : (messageType, messageData) =>
-
-
-
 
 	
 	MOVEMENT_DIRECTIONS = {
@@ -63,15 +67,13 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 
 
 	class InputComponent extends GameComponent
-		constructor: (@target) ->
-			super({})
 
 		update : (delta, totalTime, gameObject) =>
 
 	class PlayerInputComponent extends InputComponent
 
-		constructor: (@target) ->
-			super(@target)
+		constructor: ->
+			super
 			@keyspressed = []
 			@setupListeners()
 
@@ -87,7 +89,7 @@ define ['jquery', 'underscore', 'backbone','three'], ( $, _, Backbone, THREE ) -
 			@keyspressed = @keyspressed.filter (keycode) -> keycode isnt event.keyCode
 
 		update : ( delta, totalTime, gameObject ) =>
-			#gameObject.send( COMPONENT_MESSAGE_TYPES.PLAYER_INPUT, @keyspressed )
+			gameObject.send( COMPONENT_MESSAGE_TYPES.PLAYER_INPUT, @keyspressed )
 			#console.log @keyspressed
 
 		destroy : =>

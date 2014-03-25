@@ -6,8 +6,9 @@ define [
 	'cs!../components/rendercomponents', 
 	'../util/threex.domevents',
 	'cs!../util/texturefont',
-	'cs!../components/gamecomponents'
-	], ($, _, Backbone, THREE, rc, THREEx, texturefont, gc) ->
+	'cs!../components/gamecomponents',
+	'cs!../models/models'
+	], ($, _, Backbone, THREE, rc, THREEx, texturefont, gc, models) ->
 	root = exports ? this
 
 	console.log gc
@@ -131,10 +132,14 @@ define [
 			@font = new texturefont.TextureFont
 
 			@font.loadFont 'app/resources/arial.json', @fontLoaded
+
+			@grass = new models.Grass()
+			@scene.add @grass.mesh
+
 			#@loadModel "http://mrdoob.github.io/three.js/examples/obj/male02/Male02_dds.js", @manLoaded
 
-			@player = new gc.Player
-			@components.push @player
+			#@player = new gc.Player
+			#@components.push @player
 
 	root.Scene = Scene
 	root.DemoScene = DemoScene

@@ -11,13 +11,44 @@ define [], () ->
 				@camera.aspect = window.innerWidth / window.innerHeight
 				@camera.updateProjectionMatrix
 		window.addEventListener 'resize', callback, false
-		ret = 
+		{
 			setCamera: (camera) ->
 				@camera = camera
 			trigger: ->
 				callback()
 			destroy: ->
 				window.removeEventListener 'resize', callback
+		}
 
-	root.WindowResize = WindowResize
-	root
+
+	class Singleton
+		@_instance = null
+		@getInstance: ->
+			@_instance or= new @( arguments... )
+
+
+	class RingBuffer
+		constructor: ( @max_items = 16 ) ->
+			@head = 0
+			@tail = 0
+			@pending = (null for i in [0..@max_items])
+
+		push : ( item ) =>
+			if @tail >= max_items
+				throw Error "Assertion Failed : too many items added to RingBuffer"
+			@pending[@tail] = item
+			@tail = (@tail + 1) % @max_items
+
+		get : =>
+			if @head == @tail
+				return
+			item = @pending[@head]
+			@head = (@head + 1) % @max_items
+			item
+
+
+	{
+		WindowResize: WindowResize
+		Singleton: Singleton
+		RingBuffer : RingBuffer
+	}
