@@ -34,9 +34,9 @@ define ['jquery', 'underscore', 'backbone', 'three'], ($, _, Backbone, THREE) ->
 			for x in [0..@tileCount]
 				for y in [0..@tileCount]
 					g = tile_geom.clone()
-					_x = x * @size
-					_y = y * @size
-					g.applyMatrix new THREE.Matrix4().makeTranslation( new THREE.Vector3( _x, 0, _y ) )
+					_x = x * tile_size
+					_y = y * tile_size
+					g.applyMatrix new THREE.Matrix4().makeTranslation(  _x, 0, _y )
 					THREE.GeometryUtils.merge( @baseGeom, g )
 					console.log( @baseGeom.vertices.length )
 
